@@ -8,7 +8,6 @@ import (
 	"log"
 	"mime"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -34,12 +33,6 @@ func mimeTypeByExtensionExt(name string, defaultMimeType string) string {
 		return defaultMimeType
 	}
 	return result
-}
-
-func getFileSizeMust(path string) int64 {
-	s, err := os.Stat(path)
-	panicIfErr(err)
-	return s.Size()
 }
 
 func loadAssetsFromZipMust() {
