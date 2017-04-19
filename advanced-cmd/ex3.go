@@ -4,10 +4,28 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 )
+
+func copyAndCapture(w io.Writer, r io.Reader) []byte {
+	var out []byte
+	buf := make([]byte, 1024, 1024)
+	for {
+		n, err := r.Read(buf[:])
+		if err != nil {
+			break
+		}
+		if n > 0 {
+			d := buf[:n]
+			out = append(out, d...)
+			os.Stdout.Write(d)
+		}
+	}
+	return out
+}
 
 func main() {
 	cmd := exec.Command("ls", "-lah")
@@ -17,33 +35,11 @@ func main() {
 	cmd.Start()
 
 	go func() {
-		buf := make([]byte, 1024, 1024)
-		for {
-			n, err := stdoutIn.Read(buf)
-			if err != nil {
-				break
-			}
-			if n > 0 {
-				d := buf[:n]
-				stdout = append(stdout, d...)
-				os.Stdout.Write(d)
-			}
-		}
+		stdout = copyAndCapture(os.Stdout, stdoutIn)
 	}()
 
 	go func() {
-		buf := make([]byte, 1024, 1024)
-		for {
-			n, err := stderrIn.Read(buf)
-			if err != nil {
-				break
-			}
-			if n > 0 {
-				d := buf[:n]
-				stderr = append(stderr, d...)
-				os.Stderr.Write(d)
-			}
-		}
+		stderr = copyAndCapture(os.Stderr, stderrIn)
 	}()
 
 	err := cmd.Wait()
