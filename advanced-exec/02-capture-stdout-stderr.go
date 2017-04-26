@@ -1,7 +1,5 @@
 package main
 
-// to execute: go run ex2.go
-
 import (
 	"bytes"
 	"fmt"

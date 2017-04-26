@@ -1,7 +1,5 @@
 package main
 
-// to execute: go run ex3.go
-
 import (
 	"fmt"
 	"io"

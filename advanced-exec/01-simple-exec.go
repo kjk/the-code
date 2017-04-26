@@ -1,7 +1,5 @@
 package main
 
-// to execute: go run ex1.go
-
 import (
 	"fmt"
 	"log"
