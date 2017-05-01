@@ -140,11 +140,6 @@ func startLocalDockerDbMust() (string, string) {
 		if info != nil && info.status == dockerStatusRunning {
 			return decodeIPPortMust(info.mappings)
 		}
-		if info == nil {
-			fmt.Printf("info is nil\n")
-		} else {
-			fmt.Printf("status: '%s', info: %v\n", info.status, info)
-		}
 		time.Sleep(time.Second)
 	}
 
