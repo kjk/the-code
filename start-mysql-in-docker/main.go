@@ -1,0 +1,201 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"os/user"
+	"strings"
+	"time"
+)
+
+const (
+	statusExited  = "exited"
+	statusRunning = "running"
+)
+
+var (
+	dockerImageName     = "mysql:5.6"
+	dockerContainerName = "mysql-db-multi"
+	dockerDbDir         = "~/data/db-multi"
+	dockerDbLocalPort   = "7200"
+)
+
+type containerInfo struct {
+	id       string
+	name     string
+	mappings string
+	status   string
+}
+
+func quoteIfNeeded(s string) string {
+	if strings.Contains(s, " ") || strings.Contains(s, "\"") {
+		s = strings.Replace(s, `"`, `\"`, -1)
+		return `"` + s + `"`
+	}
+	return s
+}
+
+func cmdString(cmd *exec.Cmd) string {
+	n := len(cmd.Args)
+	a := make([]string, n, n)
+	for i := 0; i < n; i++ {
+		a[i] = quoteIfNeeded(cmd.Args[i])
+	}
+	return strings.Join(a, " ")
+}
+
+func runCmdWithLogging(cmd *exec.Cmd) error {
+	fmt.Printf("Running: %s\n", cmdString(cmd))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func decodeContainerStaus(status string) string {
+	// Convert "Exited (0) 2 days ago" into statusExited
+	if strings.HasPrefix(status, "Exited") {
+		return statusExited
+	}
+	// convert "Up <time>" into statusRunning
+	if strings.HasPrefix(status, "Up ") {
+		return statusRunning
+	}
+	return strings.ToLower(status)
+}
+
+// given:
+// 0.0.0.0:7200->3306/tcp
+// return (0.0.0.0, 7200) or None if doesn't match
+func decodeIPPortMust(mappings string) (string, string) {
+	parts := strings.Split(mappings, "->")
+	fatalIf(len(parts) != 2, "invalid mappings string: '%s'", mappings)
+	parts = strings.Split(parts[0], ":")
+	fatalIf(len(parts) != 2, "invalid mappints string: '%s'", mappings)
+	return parts[0], parts[1]
+}
+
+func dockerContainerInfoMust(containerName string) *containerInfo {
+	cmd := exec.Command("docker", "ps", "-a", "--format", "{{.ID}}|{{.Status}}|{{.Ports}}|{{.Names}}")
+	fmt.Printf("Running: %s\n", cmdString(cmd))
+	outBytes, err := cmd.CombinedOutput()
+	fatalIfErr(err, "cmd.CombinedOutput() for '%s' failed with %s", cmdString(cmd), err)
+	s := string(outBytes)
+	// this returns a line like:
+	// 6c5a934e00fb|Exited (0) 3 months ago|0.0.0.0:7200->3306/tcp|mysql-db-multi
+	s = strings.TrimSpace(s)
+	lines := strings.Split(s, "\n")
+	for _, line := range lines {
+		parts := strings.Split(line, "|")
+		fatalIf(len(parts) != 4, "Unexpected output from docker ps:\n%s\n. Expected 4 parts, got %d (%v)\n", line, len(parts), parts)
+		id, status, mappings, name := parts[0], parts[1], parts[2], parts[3]
+		if containerName == name {
+			return &containerInfo{
+				id:       id,
+				status:   decodeContainerStaus(status),
+				mappings: mappings,
+				name:     name,
+			}
+		}
+	}
+	return nil
+}
+
+// returns host and port on which database accepts connection
+func startLocalDockerDbMust() (string, string) {
+	// docker must be running
+	cmd := exec.Command("docker", "ps")
+	err := cmd.Run()
+	fatalIfErr(err, "docker must be running! Error: %s", err)
+	// ensure directory for database files exists
+	dbDir := expandTildeInPath(dockerDbDir)
+	err = os.MkdirAll(dbDir, 0755)
+	fatalIfErr(err, "failed to create dir '%s'. Error: %s", err)
+	info := dockerContainerInfoMust(dockerContainerName)
+	if info != nil && info.status == statusRunning {
+		return decodeIPPortMust(info.mappings)
+	}
+	// start or resume container
+	if info == nil {
+		// start new container
+		volumeMapping := dockerDbDir + "s:/var/lib/mysql"
+		dockerPortMapping := dockerDbLocalPort + ":3306"
+		cmd = exec.Command("docker", "run", "-d", "--name"+dockerContainerName, "-p", dockerPortMapping, "-v", volumeMapping, "-e", "MYSQL_ALLOW_EMPTY_PASSWORD=yes", "-e", "MYSQL_INITDB_SKIP_TZINFO=yes", dockerImageName)
+	} else {
+		// start stopped container
+		cmd = exec.Command("docker", "start", info.id)
+	}
+	runCmdWithLogging(cmd)
+
+	// wait max 8 seconds for the container to start
+	for i := 0; i < 8; i++ {
+		info := dockerContainerInfoMust(dockerContainerName)
+		if info != nil && info.status == statusRunning {
+			return decodeIPPortMust(info.mappings)
+		}
+		if info == nil {
+			fmt.Printf("info is nil\n")
+		} else {
+			fmt.Printf("status: '%s', info: %v\n", info.status, info)
+		}
+		time.Sleep(time.Second)
+	}
+
+	fatalIf(true, "docker container '%s' didn't start in time", dockerContainerName)
+	return "", ""
+}
+
+func fmtArgs(args ...interface{}) string {
+	if len(args) == 0 {
+		return ""
+	}
+	format := args[0].(string)
+	if len(args) == 1 {
+		return format
+	}
+	return fmt.Sprintf(format, args[1:]...)
+}
+
+func fatalIfErr(err error, args ...interface{}) {
+	if err == nil {
+		return
+	}
+	s := fmtArgs(args...)
+	if s == "" {
+		s = err.Error()
+	}
+	panic(s)
+}
+
+func fatalIf(cond bool, args ...interface{}) {
+	if !cond {
+		return
+	}
+	s := fmtArgs(args...)
+	if s == "" {
+		s = "fatalIf: cond is false"
+	}
+	panic(s)
+}
+
+// userHomeDir returns $HOME diretory of the user
+func userHomeDir() string {
+	// user.Current() returns nil if cross-compiled e.g. on mac for linux
+	if usr, _ := user.Current(); usr != nil {
+		return usr.HomeDir
+	}
+	return os.Getenv("HOME")
+}
+
+// expandTildeInPath converts ~ to $HOME
+func expandTildeInPath(s string) string {
+	if strings.HasPrefix(s, "~") {
+		return userHomeDir() + s[1:]
+	}
+	return s
+}
+
+func main() {
+	ipAddr, port := startLocalDockerDbMust()
+	fmt.Printf("mysql is running insider docker, connect to %s:%s\n", ipAddr, port)
+}
