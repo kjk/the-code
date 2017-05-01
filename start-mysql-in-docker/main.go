@@ -147,6 +147,8 @@ func startLocalDockerDbMust() (string, string) {
 	return "", ""
 }
 
+// helper functions
+
 func fmtArgs(args ...interface{}) string {
 	if len(args) == 0 {
 		return ""
