@@ -10,15 +10,22 @@ import (
 )
 
 const (
-	statusExited  = "exited"
-	statusRunning = "running"
+	dockerStatusExited  = "exited"
+	dockerStatusRunning = "running"
 )
 
 var (
-	dockerImageName     = "mysql:5.6"
+	// using https://hub.docker.com/_/mysql/
+	// to use the latest mysql, use mysql:8
+	dockerImageName = "mysql:5.6"
+	// name must be unique across containers runing on this computer
 	dockerContainerName = "mysql-db-multi"
-	dockerDbDir         = "~/data/db-multi"
-	dockerDbLocalPort   = "7200"
+	// where mysql stores databases. Must be on local disk so that
+	// database outlives the container
+	dockerDbDir = "~/data/db-multi"
+	// 3306 is standard MySQL port, I use a unique port to be able
+	// to run multiple mysql instances for different projects
+	dockerDbLocalPort = "7200"
 )
 
 type containerInfo struct {
@@ -55,11 +62,11 @@ func runCmdWithLogging(cmd *exec.Cmd) error {
 func decodeContainerStaus(status string) string {
 	// Convert "Exited (0) 2 days ago" into statusExited
 	if strings.HasPrefix(status, "Exited") {
-		return statusExited
+		return dockerStatusExited
 	}
 	// convert "Up <time>" into statusRunning
 	if strings.HasPrefix(status, "Up ") {
-		return statusRunning
+		return dockerStatusRunning
 	}
 	return strings.ToLower(status)
 }
@@ -112,7 +119,7 @@ func startLocalDockerDbMust() (string, string) {
 	err = os.MkdirAll(dbDir, 0755)
 	fatalIfErr(err, "failed to create dir '%s'. Error: %s", err)
 	info := dockerContainerInfoMust(dockerContainerName)
-	if info != nil && info.status == statusRunning {
+	if info != nil && info.status == dockerStatusRunning {
 		return decodeIPPortMust(info.mappings)
 	}
 	// start or resume container
@@ -130,7 +137,7 @@ func startLocalDockerDbMust() (string, string) {
 	// wait max 8 seconds for the container to start
 	for i := 0; i < 8; i++ {
 		info := dockerContainerInfoMust(dockerContainerName)
-		if info != nil && info.status == statusRunning {
+		if info != nil && info.status == dockerStatusRunning {
 			return decodeIPPortMust(info.mappings)
 		}
 		if info == nil {
