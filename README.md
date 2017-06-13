@@ -1,2 +1,4 @@
 # go-cookbook
-Code for https://kjk.gitbooks.io/slightly-advanced-go-cookbook/content/
+
+Code for my Go articles at https://blog.kowalczyk.info/tag/go
+
