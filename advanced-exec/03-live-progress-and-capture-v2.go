@@ -1,5 +1,8 @@
 package main
 
+// to run:
+// go run 03-live-progress-and-capture-v2.go
+
 import (
 	"bytes"
 	"fmt"
@@ -23,6 +26,7 @@ func NewCapturingPassThroughWriter(w io.Writer) *CapturingPassThroughWriter {
 	}
 }
 
+// Write writes data to the writer, returns number of bytes written and an error
 func (w *CapturingPassThroughWriter) Write(d []byte) (int, error) {
 	w.buf.Write(d)
 	return w.w.Write(d)
@@ -37,6 +41,7 @@ func main() {
 	cmd := exec.Command("ls", "-lah")
 	stdoutIn, _ := cmd.StdoutPipe()
 	stderrIn, _ := cmd.StderrPipe()
+	var errStdout, errStderr error
 	stdout := NewCapturingPassThroughWriter(os.Stdout)
 	stderr := NewCapturingPassThroughWriter(os.Stderr)
 	err := cmd.Start()
@@ -45,16 +50,19 @@ func main() {
 	}
 
 	go func() {
-		io.Copy(stdout, stdoutIn)
+		_, errStdout = io.Copy(stdout, stdoutIn)
 	}()
 
 	go func() {
-		io.Copy(stderr, stderrIn)
+		_, errStderr = io.Copy(stderr, stderrIn)
 	}()
 
 	err = cmd.Wait()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
+	}
+	if errStdout != nil || errStderr != nil {
+		log.Fatal("failed to capture stdout or stderr\n")
 	}
 	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
 	fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)

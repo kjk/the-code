@@ -1,5 +1,8 @@
 package main
 
+// To run:
+// go run 05-check-environment.go
+
 import (
 	"fmt"
 	"log"
@@ -12,7 +15,7 @@ const (
 )
 
 func runEnvironTest(envValue string) {
-	cmd := exec.Command("go", "run", "06-print-env.go")
+	cmd := exec.Command("go", "run", "05-print-env-helper.go")
 	if envValue != "" {
 		newEnv := append(os.Environ(), fmt.Sprintf("%s=%s", envName, envValue))
 		cmd.Env = newEnv

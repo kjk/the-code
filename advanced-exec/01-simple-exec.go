@@ -1,5 +1,8 @@
 package main
 
+// to run:
+// go run 01-simple-exec.go
+
 import (
 	"fmt"
 	"log"

@@ -1,5 +1,8 @@
 package main
 
+// To run:
+// go run 02-capture-stdout-stderr.go
+
 import (
 	"bytes"
 	"fmt"

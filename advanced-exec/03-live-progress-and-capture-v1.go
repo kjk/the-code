@@ -1,5 +1,8 @@
 package main
 
+// to run:
+// go run 03-live-progress-and-capture.go
+
 import (
 	"fmt"
 	"io"
@@ -8,41 +11,49 @@ import (
 	"os/exec"
 )
 
-func copyAndCapture(w io.Writer, r io.Reader) []byte {
+func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 	var out []byte
 	buf := make([]byte, 1024, 1024)
 	for {
 		n, err := r.Read(buf[:])
-		if err != nil {
-			break
-		}
 		if n > 0 {
 			d := buf[:n]
 			out = append(out, d...)
 			os.Stdout.Write(d)
 		}
+		if err != nil {
+			// Read returns io.EOF at the end of file, which is not an error for us
+			if err == io.EOF {
+				err = nil
+			}
+			return out, err
+		}
 	}
-	return out
+	return out, nil
 }
 
 func main() {
 	cmd := exec.Command("ls", "-lah")
 	var stdout, stderr []byte
+	var errStdout, errStderr error
 	stdoutIn, _ := cmd.StdoutPipe()
 	stderrIn, _ := cmd.StderrPipe()
 	cmd.Start()
 
 	go func() {
-		stdout = copyAndCapture(os.Stdout, stdoutIn)
+		stdout, errStdout = copyAndCapture(os.Stdout, stdoutIn)
 	}()
 
 	go func() {
-		stderr = copyAndCapture(os.Stderr, stderrIn)
+		stderr, errStderr = copyAndCapture(os.Stderr, stderrIn)
 	}()
 
 	err := cmd.Wait()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
+	}
+	if errStdout != nil || errStderr != nil {
+		log.Fatal("failed to capture stdout or stderr\n")
 	}
 	outStr, errStr := string(stdout), string(stderr)
 	fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
