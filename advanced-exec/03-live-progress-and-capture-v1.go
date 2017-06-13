@@ -1,7 +1,7 @@
 package main
 
 // to run:
-// go run 03-live-progress-and-capture.go
+// go run 03-live-progress-and-capture-v1.go
 
 import (
 	"fmt"
@@ -29,7 +29,9 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 			return out, err
 		}
 	}
-	return out, nil
+	// never reached
+	panic(true)
+	return nil, nil
 }
 
 func main() {

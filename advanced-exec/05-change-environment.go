@@ -1,7 +1,7 @@
 package main
 
 // To run:
-// go run 05-check-environment.go
+// go run 05-change-environment.go
 
 import (
 	"fmt"

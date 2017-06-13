@@ -38,10 +38,10 @@ func (w *CapturingPassThroughWriter) Bytes() []byte {
 }
 
 func main() {
+	var errStdout, errStderr error
 	cmd := exec.Command("ls", "-lah")
 	stdoutIn, _ := cmd.StdoutPipe()
 	stderrIn, _ := cmd.StderrPipe()
-	var errStdout, errStderr error
 	stdout := NewCapturingPassThroughWriter(os.Stdout)
 	stderr := NewCapturingPassThroughWriter(os.Stderr)
 	err := cmd.Start()
