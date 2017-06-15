@@ -14,28 +14,31 @@ import (
 // To run:
 // go run main.go
 
+func genXid() {
+	id := xid.New()
+	fmt.Printf("github.com/rs/xid:           %s\n", id.String())
+}
+
+func genKsuid() {
+	id := ksuid.New()
+	fmt.Printf("github.com/segmentio/ksuid:  %s\n", id.String())
+}
+
+func genBetterGUID() {
+	id := betterguid.New()
+	fmt.Printf("github.com/kjk/betterguid:   %s\n", id)
+}
+
+func genUlid() {
+	t := time.Now().UTC()
+	entropy := rand.New(rand.NewSource(t.UnixNano()))
+	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	fmt.Printf("github.com/oklog/ulid:       %s\n", id.String())
+}
+
 func main() {
-	{
-		id := xid.New()
-		fmt.Printf("id generated with github.com/rs/xid:           %s\n", id.String())
-	}
-
-	{
-		id := ksuid.New()
-		fmt.Printf("id generated with github.com/segmentio/ksuid:  %s\n", id.String())
-
-	}
-
-	{
-		id := betterguid.New()
-		fmt.Printf("id generated with github.com/kjk/betterguid:   %s\n", id)
-	}
-
-	{
-		t := time.Now().UTC()
-		entropy := rand.New(rand.NewSource(t.UnixNano()))
-		id := ulid.MustNew(ulid.Timestamp(t), entropy)
-		fmt.Printf("id generated with github.com/oklog/ulid:       %s\n", id.String())
-
-	}
+	genXid()
+	genKsuid()
+	genBetterGUID()
+	genUlid()
 }
