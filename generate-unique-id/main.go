@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/oklog/ulid"
 	"github.com/rs/xid"
 	"github.com/segmentio/ksuid"
+	"github.com/sony/sonyflake"
 )
 
 // To run:
@@ -36,9 +38,20 @@ func genUlid() {
 	fmt.Printf("github.com/oklog/ulid:       %s\n", id.String())
 }
 
+func genSonyflake() {
+	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
+	id, err := flake.NextID()
+	if err != nil {
+		log.Fatalf("flake.NextID() failed with %s\n", err)
+	}
+	// Note: this is base16, could shorten by encoding as base62 string
+	fmt.Printf("github.com/sony/sonyflake:   %x\n", id)
+}
+
 func main() {
 	genXid()
 	genKsuid()
 	genBetterGUID()
 	genUlid()
+	genSonyflake()
 }
