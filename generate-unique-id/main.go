@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/chilts/sid"
 	"github.com/kjk/betterguid"
 	"github.com/oklog/ulid"
 	"github.com/rs/xid"
@@ -48,10 +49,16 @@ func genSonyflake() {
 	fmt.Printf("github.com/sony/sonyflake:   %x\n", id)
 }
 
+func genSid() {
+	id := sid.Id()
+	fmt.Printf("github.com/chilts/sid:       %s\n", id)
+}
+
 func main() {
 	genXid()
 	genKsuid()
 	genBetterGUID()
 	genUlid()
 	genSonyflake()
+	genSid()
 }
