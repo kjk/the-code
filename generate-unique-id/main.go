@@ -10,6 +10,7 @@ import (
 	"github.com/kjk/betterguid"
 	"github.com/oklog/ulid"
 	"github.com/rs/xid"
+	"github.com/satori/go.uuid"
 	"github.com/segmentio/ksuid"
 	"github.com/sony/sonyflake"
 )
@@ -54,6 +55,11 @@ func genSid() {
 	fmt.Printf("github.com/chilts/sid:       %s\n", id)
 }
 
+func genUUIDv4() {
+	id := uuid.NewV4()
+	fmt.Printf("github.com/satori/go.uuid:   %s\n", id)
+}
+
 func main() {
 	genXid()
 	genKsuid()
@@ -61,4 +67,5 @@ func main() {
 	genUlid()
 	genSonyflake()
 	genSid()
+	genUUIDv4()
 }
