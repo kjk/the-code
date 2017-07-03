@@ -39,8 +39,8 @@ func (i *EvenNumberIterator) Next() bool {
 
 // Value returns current even number
 func (i *EvenNumberIterator) Value() int {
-	if i.err != nil {
-		panic(i.err.Error())
+	if i.err != nil || i.currValue > i.max {
+		panic("Value is not valid after iterator finished")
 	}
 	return i.currValue
 }
@@ -53,8 +53,7 @@ func (i *EvenNumberIterator) Err() error {
 func printEvenNumbers(max int) {
 	iter := NewEvenNumberIterator(max)
 	for iter.Next() {
-		n := iter.Value()
-		fmt.Printf("n: %d\n", n)
+		fmt.Printf("n: %d\n", iter.Value())
 	}
 	if iter.Err() != nil {
 		log.Fatalf("error: %s\n", iter.Err())
@@ -62,6 +61,10 @@ func printEvenNumbers(max int) {
 }
 
 func main() {
+	fmt.Printf("Even numbers up to 8:\n")
 	printEvenNumbers(8)
+	fmt.Printf("Even numbers up to 9:\n")
+	printEvenNumbers(9)
+	fmt.Printf("Error: even numbers up to -1:\n")
 	printEvenNumbers(-1)
 }
