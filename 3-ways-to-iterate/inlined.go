@@ -12,11 +12,12 @@ func printEvenNumbers(max int) {
 	if max < 0 {
 		log.Fatalf("'max' is %d, should be >= 0", max)
 	}
-	for i := 2; i < max; i += 2 {
+	for i := 2; i <= max; i += 2 {
 		fmt.Printf("%d\n", i)
 	}
 }
 
 func main() {
-	printEvenNumbers(7)
+	printEvenNumbers(8)
+	printEvenNumbers(-1)
 }

@@ -10,9 +10,9 @@ import (
 
 func iterateEvenNumbers(max int, cb func(n int) error) error {
 	if max < 0 {
-		return fmt.Errorf("'max' is %d, must be > 0", max)
+		return fmt.Errorf("'max' is %d, must be >= 0", max)
 	}
-	for i := 2; i < max; i += 2 {
+	for i := 2; i <= max; i += 2 {
 		err := cb(i)
 		if err != nil {
 			return err
@@ -32,5 +32,6 @@ func printEvenNumbers(max int) {
 }
 
 func main() {
-	printEvenNumbers(7)
+	printEvenNumbers(8)
+	printEvenNumbers(-1)
 }
