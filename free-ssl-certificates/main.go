@@ -4,7 +4,7 @@ package main
 // go run main.go
 // Command-line options:
 //   -production : enables HTTPS on port 443
-//   -
+//   -redirect-to-https : redirect HTTP to HTTTPS
 
 import (
 	"context"
@@ -29,7 +29,7 @@ var (
 	flgRedirectHTTPToHTTPS = false
 )
 
-func handeIndex(w http.ResponseWriter, r *http.Request) {
+func handleIndex(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, htmlIndex)
 }
 
@@ -46,7 +46,7 @@ func makeServerFromMux(mux *http.ServeMux) *http.Server {
 
 func makeHTTPServer() *http.Server {
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/", handeIndex)
+	mux.HandleFunc("/", handleIndex)
 	return makeServerFromMux(mux)
 
 }
@@ -96,7 +96,7 @@ func main() {
 			fmt.Printf("Starting HTTPS server on %s\n", httpsSrv.Addr)
 			err := httpsSrv.ListenAndServeTLS("", "")
 			if err != nil {
-				log.Fatalf("httpsSrv.LstendAndServeTLS() failed with %s", err)
+				log.Fatalf("httpsSrv.ListendAndServeTLS() failed with %s", err)
 			}
 		}()
 	}
