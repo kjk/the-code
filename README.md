@@ -1,6 +1,4 @@
-# go-cookbook
-
-Code for my Go articles at https://blog.kowalczyk.info/tag/go
+Code for my [Go articles](https://blog.kowalczyk.info/book/go-cookbook.html).
 
 Legend:
 * [Advanced command execution in Go with os/exec](https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html), code: [advanced-exec](/advanced-exec)
