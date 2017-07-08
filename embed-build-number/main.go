@@ -81,10 +81,10 @@ func makeHTTPServer() *http.Server {
 }
 
 func startHTTPServer() {
-	httpAddr := ":4040"
+	httpAddr := "127.0.0.1:4040"
 	httpSrv := makeHTTPServer()
 	httpSrv.Addr = httpAddr
-	fmt.Printf("Visit http://127.0.0.1%s/app/debug\n", httpAddr)
+	fmt.Printf("Visit http://%s/app/debug\n", httpAddr)
 	err := httpSrv.ListenAndServe()
 	if err != nil {
 		log.Fatalf("httpSrv.ListendAndServe() failed with %s\n", err)
