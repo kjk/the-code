@@ -53,9 +53,9 @@ func makeHTTPServer() *http.Server {
 }
 
 func makeHTTPToHTTPSRedirectServer() *http.Server {
-	handleRedirect := func(w http.ResponseWriter, req *http.Request) {
-		newURI := "https://" + req.Host + req.URL.String()
-		http.Redirect(w, req, newURI, http.StatusFound)
+	handleRedirect := func(w http.ResponseWriter, r *http.Request) {
+		newURI := "https://" + r.Host + r.URL.String()
+		http.Redirect(w, r, newURI, http.StatusFound)
 	}
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/", handleRedirect)
