@@ -1,5 +1,6 @@
 package main
 
+// https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html
 // To run:
 // go run 02-capture-stdout-stderr.go
 

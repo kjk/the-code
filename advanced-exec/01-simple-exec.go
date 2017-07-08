@@ -1,5 +1,6 @@
 package main
 
+// https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html
 // to run:
 // go run 01-simple-exec.go
 

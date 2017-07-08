@@ -1,5 +1,6 @@
 package main
 
+// https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html
 // to run:
 // go run 03-live-progress-and-capture-v3.go
 

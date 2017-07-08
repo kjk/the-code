@@ -1,5 +1,8 @@
 package main
 
+// To run:
+// go run main.g
+
 import (
 	"fmt"
 	"os"
@@ -53,7 +56,6 @@ func cmdString(cmd *exec.Cmd) string {
 }
 
 func runCmdWithLogging(cmd *exec.Cmd) error {
-	fmt.Printf("Running: %s\n", cmdString(cmd))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -76,17 +78,16 @@ func decodeContainerStaus(status string) string {
 // return (0.0.0.0, 7200) or None if doesn't match
 func decodeIPPortMust(mappings string) (string, string) {
 	parts := strings.Split(mappings, "->")
-	fatalIf(len(parts) != 2, "invalid mappings string: '%s'", mappings)
+	panicIf(len(parts) != 2, "invalid mappings string: '%s'", mappings)
 	parts = strings.Split(parts[0], ":")
-	fatalIf(len(parts) != 2, "invalid mappints string: '%s'", mappings)
+	panicIf(len(parts) != 2, "invalid mappints string: '%s'", mappings)
 	return parts[0], parts[1]
 }
 
 func dockerContainerInfoMust(containerName string) *containerInfo {
 	cmd := exec.Command("docker", "ps", "-a", "--format", "{{.ID}}|{{.Status}}|{{.Ports}}|{{.Names}}")
-	fmt.Printf("Running: %s\n", cmdString(cmd))
 	outBytes, err := cmd.CombinedOutput()
-	fatalIfErr(err, "cmd.CombinedOutput() for '%s' failed with %s", cmdString(cmd), err)
+	panicIfErr(err, "cmd.CombinedOutput() for '%s' failed with %s", cmdString(cmd), err)
 	s := string(outBytes)
 	// this returns a line like:
 	// 6c5a934e00fb|Exited (0) 3 months ago|0.0.0.0:7200->3306/tcp|mysql-db-multi
@@ -94,7 +95,7 @@ func dockerContainerInfoMust(containerName string) *containerInfo {
 	lines := strings.Split(s, "\n")
 	for _, line := range lines {
 		parts := strings.Split(line, "|")
-		fatalIf(len(parts) != 4, "Unexpected output from docker ps:\n%s\n. Expected 4 parts, got %d (%v)\n", line, len(parts), parts)
+		panicIf(len(parts) != 4, "Unexpected output from docker ps:\n%s\n. Expected 4 parts, got %d (%v)\n", line, len(parts), parts)
 		id, status, mappings, name := parts[0], parts[1], parts[2], parts[3]
 		if containerName == name {
 			return &containerInfo{
@@ -113,11 +114,11 @@ func startLocalDockerDbMust() (string, string) {
 	// docker must be running
 	cmd := exec.Command("docker", "ps")
 	err := cmd.Run()
-	fatalIfErr(err, "docker must be running! Error: %s", err)
+	panicIfErr(err, "docker must be running! Error: %s", err)
 	// ensure directory for database files exists
 	dbDir := expandTildeInPath(dockerDbDir)
 	err = os.MkdirAll(dbDir, 0755)
-	fatalIfErr(err, "failed to create dir '%s'. Error: %s", err)
+	panicIfErr(err, "failed to create dir '%s'. Error: %s", err)
 	info := dockerContainerInfoMust(dockerContainerName)
 	if info != nil && info.status == dockerStatusRunning {
 		return decodeIPPortMust(info.mappings)
@@ -143,7 +144,7 @@ func startLocalDockerDbMust() (string, string) {
 		time.Sleep(time.Second)
 	}
 
-	fatalIf(true, "docker container '%s' didn't start in time", dockerContainerName)
+	panicIf(true, "docker container '%s' didn't start in time", dockerContainerName)
 	return "", ""
 }
 
@@ -160,7 +161,7 @@ func fmtArgs(args ...interface{}) string {
 	return fmt.Sprintf(format, args[1:]...)
 }
 
-func fatalIfErr(err error, args ...interface{}) {
+func panicIfErr(err error, args ...interface{}) {
 	if err == nil {
 		return
 	}
@@ -171,7 +172,7 @@ func fatalIfErr(err error, args ...interface{}) {
 	panic(s)
 }
 
-func fatalIf(cond bool, args ...interface{}) {
+func panicIf(cond bool, args ...interface{}) {
 	if !cond {
 		return
 	}
@@ -201,5 +202,6 @@ func expandTildeInPath(s string) string {
 
 func main() {
 	ipAddr, port := startLocalDockerDbMust()
-	fmt.Printf("mysql is running insider docker, connect to %s:%s\n", ipAddr, port)
+	fmt.Printf("mysql is running insider docker, connect to ip: %s, port: %s\n", ipAddr, port)
+	// now connect to the database
 }

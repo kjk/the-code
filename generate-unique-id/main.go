@@ -1,5 +1,9 @@
 package main
 
+// https://blog.kowalczyk.info/article/JyRZ/generating-good-unique-ids-in-go.html
+// To run:
+// go run main.go
+
 import (
 	"fmt"
 	"log"
@@ -14,9 +18,6 @@ import (
 	"github.com/segmentio/ksuid"
 	"github.com/sony/sonyflake"
 )
-
-// To run:
-// go run main.go
 
 func genXid() {
 	id := xid.New()

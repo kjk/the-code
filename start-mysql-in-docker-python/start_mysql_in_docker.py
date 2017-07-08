@@ -125,14 +125,18 @@ def create_db_dir():
     # throws if already exists, which is ok
     pass
 
-def main():
+def start_mysql_in_docker():
   verify_docker_running()
   create_db_dir()
   start_container_if_needed(imageName, containerName, dockerDbLocalPort + ":3306")
   (containerId, status, ip_port) = docker_container_info(containerName)
   assert ip_port is not None
-  ip, port = ip_port
-  print("%s;%s" % (ip, port))
+  return ip_port
+
+def main():
+  ip, port = start_mysql_in_docker()
+	print("mysql is running insider docker, connect to ip: %s, port: %s", ip, port)
+  # now connect to mysql database using the ip/port
 
 if __name__ == "__main__":
   main()
