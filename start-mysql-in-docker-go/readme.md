@@ -1,4 +1,8 @@
-Code samples for chapter on <a href="">Using MySQL in Docker for local testing</a>
-from <a href="https://blog.kowalczyk.info/book/go-cookbook.html">Go Cookbook</a>.
+Code samples from [Go Cookbook](https://blog.kowalczyk.info/book/go-cookbook.html).
 
-You must have <a href="https://www.docker.com/">docker</a> installed.
+Chapter: [Using MySQL in Docker for local testing In Go](https://blog.kowalczyk.info/article/w4re/using-mysql-in-docker-for-local-testing-in-go.html).
+
+You must have [docker](https://www.docker.com) installed.
+
+Legend:
+* [main.go](main.go) : shows how to programmatically start MySQL running inside a Docker container and obtain ip address to connect to
