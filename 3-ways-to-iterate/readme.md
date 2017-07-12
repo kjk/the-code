@@ -6,5 +6,6 @@ Legend:
 
 * [inlined.go](inlined.go) : iteration and processing commingled
 * [callback.go](callback.go) : iteration code calls a processing callback for each item
-* [channel.go](channel.go) : iterator sends item over a channel
 * [next.go](next.go) : iterator is a struct that implements `Next` method to advance to the next item
+* [channel.go](channel.go) : generator sends items over a channel
+* [channel-cancellable.go](channel-cancellable.go) : generator sends items over a channel, added ability to stop the generator by the client
