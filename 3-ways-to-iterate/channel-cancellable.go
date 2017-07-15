@@ -46,41 +46,22 @@ func generateEvenNumbers(ctx context.Context, max int) chan IntWithError {
 func printEvenNumbersCancellable(max int, stopAt int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	for val := range generateEvenNumbers(ctx, max) {
+	ch := generateEvenNumbers(ctx, max)
+	for val := range ch {
 		if val.Err != nil {
 			log.Fatalf("Error: %s\n", val.Err)
 		}
 		if val.Int > stopAt {
-			// notice we keep going to drain the channel
 			cancel()
+			// notice we keep going in order to drain the channel
+			continue
 		}
+		// process the value
 		fmt.Printf("%d\n", val.Int)
-	}
-}
-
-func printEvenNumbersCancellable2(max int, stopAt int) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	iter := generateEvenNumbers(ctx, max)
-	for val := range iter {
-		if val.Err != nil {
-			log.Fatalf("Error: %s\n", val.Err)
-		}
-		if val.Int > stopAt {
-			// notice we keep going to drain the channel
-			cancel()
-			break
-		}
-		fmt.Printf("%d\n", val.Int)
-	}
-	// drain the channel
-	for _ = range iter {
 	}
 }
 
 func main() {
 	fmt.Printf("Even numbers up to 20, cancel at 8:\n")
 	printEvenNumbersCancellable(20, 8)
-	fmt.Printf("Even numbers up to 20, cancel at 8:\n")
-	printEvenNumbersCancellable2(20, 8)
 }
