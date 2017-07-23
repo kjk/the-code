@@ -9,8 +9,6 @@ Legend:
 * [Generating good, random and unique ids in Go](https://blog.kowalczyk.info/article/JyRZ/generating-good-random-and-unique-ids-in-go.html), code: [generate-unique-id](generate-unique-id)
 * [HTTPS for free in Go](https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go.html), code: [free-ssl-certificates](free-ssl-certificates)
 * [Embedding build number in Go executable](https://blog.kowalczyk.info/article/vEja/embedding-build-number-in-go-executable.html), code: [embed-build-number](embed-build-number)
-
-Drafts:
 * [Simple serialization format for logging and analytics in Go](https://blog.kowalczyk.info/article/vkeR/simple-serialization-for-logging-and-analytics-in-go.html), no code
 * [Rotate log files daily](https://blog.kowalczyk.info/article/1Ll7/rotate-log-files-daily-in-go.html), no code
 * [Using MySQL in Docker for local testing In Go](https://blog.kowalczyk.info/article/w4re/using-mysql-in-docker-for-local-testing-in-go.html), code: [start-mysql-in-docker-go](start-mysql-in-docker-go)
