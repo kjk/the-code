@@ -20,7 +20,10 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 		if n > 0 {
 			d := buf[:n]
 			out = append(out, d...)
-			os.Stdout.Write(d)
+			_, err := w.Write(d)
+			if err != nil {
+				return out, err
+			}
 		}
 		if err != nil {
 			// Read returns io.EOF at the end of file, which is not an error for us
