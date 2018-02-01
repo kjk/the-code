@@ -70,6 +70,7 @@ func parseFlags() {
 
 func main() {
 	parseFlags()
+	var m *autocert.Manager
 
 	var httpsSrv *http.Server
 	if flgProduction {
@@ -83,7 +84,7 @@ func main() {
 		}
 
 		dataDir := "."
-		m := autocert.Manager{
+		m = &autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
 			HostPolicy: hostPolicy,
 			Cache:      autocert.DirCache(dataDir),
@@ -108,6 +109,11 @@ func main() {
 	} else {
 		httpSrv = makeHTTPServer()
 	}
+	// allow autocert handle Let's Encrypt callbacks over http
+	if m != nil {
+		httpSrv.Handler = m.HTTPHandler(httpSrv.Handler)
+	}
+
 	httpSrv.Addr = httpPort
 	fmt.Printf("Starting HTTP server on %s\n", httpPort)
 	err := httpSrv.ListenAndServe()
