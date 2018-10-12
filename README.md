@@ -1,5 +1,7 @@
 Code for my [Go Cookbok](https://blog.kowalczyk.info/book/go-cookbook.html) articles.
 
+For even more info, see book [Essential Go](https://www.programming-books.io/essential/go/).
+
 All code samples are [public domain](https://en.wikipedia.org/wiki/Public_domain).
 You can use them any way you want, without attribution.
 
