@@ -35,9 +35,6 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 			return out, err
 		}
 	}
-	// never reached
-	panic(true)
-	return nil, nil
 }
 
 func main() {
