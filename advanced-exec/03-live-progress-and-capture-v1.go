@@ -10,6 +10,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
+	"sync"
 )
 
 func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
@@ -40,21 +42,34 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 
 func main() {
 	cmd := exec.Command("ls", "-lah")
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("tasklist")
+	}
+
 	var stdout, stderr []byte
 	var errStdout, errStderr error
 	stdoutIn, _ := cmd.StdoutPipe()
 	stderrIn, _ := cmd.StderrPipe()
-	cmd.Start()
+	err := cmd.Start()
+	if err != nil {
+		log.Fatalf("cmd.Start() failed with '%s'\n", err)
+	}
 
+	// cmd.Wait() should be called only after we finish reading
+	// from stdoutIn and stderrIn.
+	// wg ensures that we finish
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
 		stdout, errStdout = copyAndCapture(os.Stdout, stdoutIn)
+		wg.Done()
 	}()
 
-	go func() {
-		stderr, errStderr = copyAndCapture(os.Stderr, stderrIn)
-	}()
+	stderr, errStderr = copyAndCapture(os.Stderr, stderrIn)
 
-	err := cmd.Wait()
+	wg.Wait()
+
+	err = cmd.Wait()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}

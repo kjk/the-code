@@ -11,6 +11,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
+	"sync"
 )
 
 // CapturingPassThroughWriter is a writer that remembers
@@ -39,8 +41,12 @@ func (w *CapturingPassThroughWriter) Bytes() []byte {
 }
 
 func main() {
-	var errStdout, errStderr error
 	cmd := exec.Command("ls", "-lah")
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("tasklist")
+	}
+
+	var errStdout, errStderr error
 	stdoutIn, _ := cmd.StdoutPipe()
 	stderrIn, _ := cmd.StderrPipe()
 	stdout := NewCapturingPassThroughWriter(os.Stdout)
@@ -50,13 +56,16 @@ func main() {
 		log.Fatalf("cmd.Start() failed with '%s'\n", err)
 	}
 
-	go func() {
-		_, errStdout = io.Copy(stdout, stdoutIn)
-	}()
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	go func() {
-		_, errStderr = io.Copy(stderr, stderrIn)
+		_, errStdout = io.Copy(stdout, stdoutIn)
+		wg.Done()
 	}()
+
+	_, errStderr = io.Copy(stderr, stderrIn)
+	wg.Wait()
 
 	err = cmd.Wait()
 	if err != nil {

@@ -9,10 +9,15 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"runtime"
 )
 
 func main() {
 	cmd := exec.Command("ls", "-lah")
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("tasklist")
+	}
+
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
