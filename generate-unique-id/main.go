@@ -16,7 +16,7 @@ import (
 	"github.com/lithammer/shortuuid"
 	"github.com/oklog/ulid"
 	"github.com/rs/xid"
-	"github.com/satori/go.uuid"
+	suuid "github.com/satori/go.uuid"
 	"github.com/segmentio/ksuid"
 	"github.com/sony/sonyflake"
 )
@@ -55,6 +55,10 @@ func genUlid() {
 
 func genSonyflake() {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
+	if flake == nil {
+		fmt.Printf("Couldn't generate sonyflake.NewSonyflake. Doesn't work on Go Playground due to fake time.\n")
+		return
+	}
 	id, err := flake.NextID()
 	if err != nil {
 		log.Fatalf("flake.NextID() failed with %s\n", err)
@@ -69,10 +73,7 @@ func genSid() {
 }
 
 func genUUIDv4() {
-	id, err := uuid.NewV4()
-	if err != nil {
-		log.Fatalf("uuid.NewV4() failed with %s\n", err)
-	}
+	id := suuid.NewV4()
 	fmt.Printf("github.com/satori/go.uuid:      %s\n", id)
 }
 
