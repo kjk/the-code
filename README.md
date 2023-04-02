@@ -4,7 +4,7 @@ All code samples are [public domain](https://en.wikipedia.org/wiki/Public_domain
 You can use them any way you want, without attribution.
 
 Legend:
-* [3 ways to iterate](https://blog.kowalczyk.info/article/1Bkr/3-ways-to-iterate-in-go.html), code: [3-ways-to-iterate](go/3-ways-to-iterate)
+* [3 ways to iterate](https://blog.kowalczyk.info/article/1Bkr/3-ways-to-iterate-in-go.html), code: [go/3-ways-to-iterate](3-ways-to-iterate)
 * [Advanced command execution in Go with os/exec](https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html), code: [go/advanced-exec](advanced-exec)
 * [Generating good, random and unique ids in Go](https://blog.kowalczyk.info/article/JyRZ/generating-good-random-and-unique-ids-in-go.html), code: [go/generate-unique-id](generate-unique-id)
 * [HTTPS for free in Go](https://blog.kowalczyk.info/article/Jl3G/https-for-free-in-go.html), code: [free-ssl-certificates](go/free-ssl-certificates)
