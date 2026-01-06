@@ -12,5 +12,6 @@ The results:
 * github.com/toon-format/toon-go is only slightly slower than pretty-printe encoding/json
 * encoding/json is much faster when encoding in compact format
 
-Commentary: the readibility of TOON format justify using it in most cases instead of JSON.
+Commentary: the readibility of TOON format justifies using it in most cases instead of JSON.
+
 
