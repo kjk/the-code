@@ -1,5 +1,5 @@
 module test_compress
 
-go 1.22.1
+go 1.24
 
-require github.com/klauspost/compress v1.17.7
+require github.com/klauspost/compress v1.18.7
